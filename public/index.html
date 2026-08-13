@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        input[type="url"] {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 25px;
+            display: none;
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #c8e6c9;
+        }
+        #result a {
+            color: #2e7d32;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 18px;
+            word-break: break-all;
+        }
+        #result a:hover {
+            text-decoration: underline;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>URL Shortener 🔗</h1>
+    <form id="shortenForm">
+        <input type="url" id="longUrl" placeholder="Enter long URL (e.g., https://example.com)" required>
+        <button type="submit">Shorten URL</button>
+    </form>
+    
+    <div id="error" class="error"></div>
+    
+    <div id="result">
+        <p>Your short URL is ready:</p>
+        <a id="shortUrlLink" href="#" target="_blank"></a>
+    </div>
+</div>
+
+<script>
+    document.getElementById('shortenForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const longUrl = document.getElementById('longUrl').value;
+        const resultDiv = document.getElementById('result');
+        const shortUrlLink = document.getElementById('shortUrlLink');
+        const errorDiv = document.getElementById('error');
+        
+        // Reset view
+        resultDiv.style.display = 'none';
+        errorDiv.textContent = '';
+        
+        try {
+            const response = await fetch('/api/shorten', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ longUrl })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                shortUrlLink.href = data.shortUrl;
+                shortUrlLink.textContent = data.shortUrl;
+                resultDiv.style.display = 'block';
+            } else {
+                errorDiv.textContent = data || 'An error occurred';
+            }
+        } catch (error) {
+            errorDiv.textContent = 'Server connection failed';
+        }
+    });
+</script>
+
+</body>
+</html>
